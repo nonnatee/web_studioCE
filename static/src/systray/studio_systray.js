@@ -12,4 +12,4 @@ export class StudioSystray extends Component {
     }
 }
 
-registry.category("systray").add("web_studioCE.StudioSystray", { Component }, { sequence: 5 });
+registry.category("systray").add("web_studioCE.StudioSystray", { Component: StudioSystray }, { sequence: 5 });
