@@ -233,7 +233,7 @@
                     <!-- Canvas Grid overlay indicator -->
                     <div class="o_studio_canvas_grid w-100 h-100 position-absolute top-0 left-0" style="opacity: 0.04; background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 20px 20px; pointer-events: none;"/>
                     
-                    <div class="o_studio_view_wrapper bg-white shadow rounded p-4 h-100 position-relative overflow-auto" style="border: 2px dashed #9b59b6;">
+                    <div class="o_studio_view_wrapper bg-white shadow rounded p-4 h-100 position-relative overflow-hidden d-flex flex-column" style="border: 2px dashed #9b59b6;">
                         <span class="position-absolute px-2 py-1 bg-purple text-white small font-weight-bold" style="top: 0; left: 0; background: #9b59b6; border-bottom-right-radius: 4px; z-index: 10;">
                             Live View Layout Editor
                         </span>

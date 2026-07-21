@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { View } from "@web/views/view";
 
@@ -15,6 +15,16 @@ export class StudioEditor extends Component {
             newFieldRelation: "",
         });
         this.env.openFieldCreationModal = this.openFieldCreationModal.bind(this);
+
+        const handleDragEnd = () => {
+            document.body.classList.remove("o_studio_dragging");
+        };
+        onMounted(() => {
+            document.addEventListener("dragend", handleDragEnd);
+        });
+        onWillUnmount(() => {
+            document.removeEventListener("dragend", handleDragEnd);
+        });
     }
 
     get existingFieldsNotInView() {
@@ -30,10 +40,12 @@ export class StudioEditor extends Component {
     }
 
     onDragStartNewField(ev, type, label) {
+        document.body.classList.add("o_studio_dragging");
         ev.dataTransfer.setData("studio/new-field", JSON.stringify({ type, label }));
     }
 
     onDragStartExistingField(ev, name) {
+        document.body.classList.add("o_studio_dragging");
         ev.dataTransfer.setData("studio/existing-field", name);
     }
 

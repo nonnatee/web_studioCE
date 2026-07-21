@@ -49,7 +49,7 @@
 .o_web_studio_group_target,
 .o_web_studio_page_target {
   position: relative;
-  transition: outline 0.15s ease, background-color 0.15s ease;
+  transition: background-color 0.15s ease;
   outline: 1px dashed rgba(113, 75, 103, 0.4);
   outline-offset: 2px;
   cursor: pointer;
@@ -57,6 +57,11 @@
   &:hover {
     outline: 2px dashed #714B67;
     background-color: rgba(113, 75, 103, 0.05);
+  }
+
+  &.o_studio_drag_hover {
+    outline: 2px dashed #2ecc71 !important;
+    background-color: rgba(46, 204, 113, 0.15) !important;
   }
 
   &.o_selected {
@@ -98,3 +103,13 @@
     opacity: 1;
   }
 }
+
+// Optimization: Disable pointer events on all nested children of drop targets during drag-and-drop
+body.o_studio_dragging {
+  .o_web_studio_field_target *,
+  .o_web_studio_column_target *,
+  .o_web_studio_group_target * {
+    pointer-events: none !important;
+  }
+}
+

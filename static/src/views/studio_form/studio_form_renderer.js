@@ -33,7 +33,9 @@ export class StudioFormRenderer extends FormRenderer {
     }
 
     onDragOver(ev) {
-        ev.currentTarget.classList.add("o_studio_drag_hover");
+        if (!ev.currentTarget.classList.contains("o_studio_drag_hover")) {
+            ev.currentTarget.classList.add("o_studio_drag_hover");
+        }
         ev.preventDefault();
     }
 
