@@ -1,11 +1,11 @@
 import { registry } from "@web/core/registry";
-import { Component } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 export class StudioSystray extends Component {
     static template = "web_studioCE.StudioSystray";
     setup() {
-        this.studio = useService("studio");
+        this.studio = useState(useService("studio"));
     }
     onClick() {
         this.studio.enterStudioMode();

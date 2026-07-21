@@ -2,11 +2,12 @@ import { patch } from "@web/core/utils/patch";
 import { WebClient } from "@web/webclient/webclient";
 import { StudioEditor } from "./editor/studio_editor";
 import { useService } from "@web/core/utils/hooks";
+import { useState } from "@odoo/owl";
 
 patch(WebClient.prototype, {
     setup() {
         super.setup();
-        this.studio = useService("studio");
+        this.studio = useState(useService("studio"));
     }
 });
 

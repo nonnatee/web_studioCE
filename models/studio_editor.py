@@ -13,16 +13,21 @@ class StudioEditor(models.AbstractModel):
         """
         Retrieves the architecture XML and field definitions for editing.
         """
-        view = self.env['ir.ui.view'].browse(view_id)
+        view = self.env['ir.ui.view'].browse(view_id) if view_id else self.env['ir.ui.view']
         if not view.exists():
             # If view_id is false, search for the default view of this type
+            view_types = [view_type]
+            if view_type == 'list':
+                view_types.append('tree')
+            elif view_type == 'tree':
+                view_types.append('list')
             view = self.env['ir.ui.view'].search([
                 ('model', '=', model_name),
-                ('type', '=', view_type)
+                ('type', 'in', view_types)
             ], limit=1)
         
         if not view:
-            return {'arch': False, 'fields': {}}
+            return {'view_id': False, 'arch': False, 'fields': {}}
             
         # Get standard fields description
         fields_info = self.env[model_name].fields_get()

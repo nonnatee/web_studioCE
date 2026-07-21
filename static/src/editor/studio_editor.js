@@ -7,7 +7,7 @@ export class StudioEditor extends Component {
     static components = { View };
 
     setup() {
-        this.studio = useService("studio");
+        this.studio = useState(useService("studio"));
         this.orm = useService("orm");
         this.state = useState({
             newFieldName: "",
