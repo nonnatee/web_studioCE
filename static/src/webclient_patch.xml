@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="web.WebClient" t-inherit-mode="extension">
+        <!-- Render StudioEditor right after the standard action container when active -->
+        <xpath expr="//ActionContainer" position="after">
+            <t t-if="studio.studioMode">
+                <StudioEditor/>
+            </t>
+        </xpath>
+        <!-- Hide standard ActionContainer when Studio mode is active -->
+        <xpath expr="//ActionContainer" position="attributes">
+            <attribute name="t-if">!studio.studioMode</attribute>
+        </xpath>
+        <!-- Hide standard NavBar when Studio mode is active -->
+        <xpath expr="//NavBar" position="attributes">
+            <attribute name="t-if">!state.fullscreen &amp;&amp; !studio.studioMode</attribute>
+        </xpath>
+    </t>
+</templates>

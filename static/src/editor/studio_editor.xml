@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="web_studioCE.StudioEditor">
+        <div class="o_studio_editor d-flex flex-column h-100 w-100 bg-light">
+            <!-- Top bar -->
+            <div class="o_studio_topbar d-flex justify-content-between align-items-center px-4 py-2 border-bottom text-white" style="background: #2c3e50; height: 50px;">
+                <div class="d-flex align-items-center">
+                    <span class="font-weight-bold mr-3" style="font-size: 1.15rem; color: #1abc9c;">Studio Community Edition</span>
+                    <span class="badge badge-info px-2 py-1" style="font-size: 0.85rem;"><t t-esc="studio.activeModel"/> (<t t-esc="studio.activeViewType"/>)</span>
+                </div>
+                <div class="o_studio_topbar_actions d-flex align-items-center">
+                    <button class="btn btn-sm btn-secondary mr-2" t-on-click="studio.undo" t-att-disabled="studio.undoStack.length == 0" title="Undo">
+                        <i class="fa fa-undo"/> Undo
+                    </button>
+                    <button class="btn btn-sm btn-secondary mr-4" t-on-click="studio.redo" t-att-disabled="studio.redoStack.length == 0" title="Redo">
+                        <i class="fa fa-repeat"/> Redo
+                    </button>
+                    <button class="btn btn-sm btn-danger px-3 py-1 font-weight-bold" t-on-click="studio.leaveStudioMode">
+                        <i class="fa fa-times"/> Close Studio
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main container -->
+            <div class="d-flex flex-row flex-grow-1 overflow-hidden" style="height: calc(100% - 50px);">
+                <!-- Sidebar -->
+                <div class="o_studio_sidebar border-right bg-white" style="width: 320px; min-width: 320px; display: flex; flex-column: true; height: 100%;">
+                    <!-- Sidebar Tabs -->
+                    <div class="o_studio_sidebar_tabs d-flex border-bottom bg-light w-100" style="height: 45px;">
+                        <button class="flex-grow-1 py-2 font-weight-bold border-0 text-center"
+                                t-att-class="studio.activeTab == 'add' ? 'bg-white border-bottom-primary font-weight-bold' : 'text-muted'"
+                                t-on-click="() => studio.setActiveTab('add')"
+                                style="outline: none; cursor: pointer; border-bottom: 2px solid transparent; font-size: 0.8rem;">
+                            <i class="fa fa-plus-circle mr-1"/> Add
+                        </button>
+                        <button class="flex-grow-1 py-2 font-weight-bold border-0 text-center"
+                                t-att-class="studio.activeTab == 'properties' ? 'bg-white border-bottom-primary font-weight-bold' : 'text-muted'"
+                                t-on-click="() => studio.setActiveTab('properties')"
+                                style="outline: none; cursor: pointer; border-bottom: 2px solid transparent; font-size: 0.8rem;">
+                            <i class="fa fa-info-circle mr-1"/> Properties
+                        </button>
+                        <button class="flex-grow-1 py-2 font-weight-bold border-0 text-center"
+                                t-att-class="studio.activeTab == 'help' ? 'bg-white border-bottom-primary font-weight-bold' : 'text-muted'"
+                                t-on-click="() => studio.setActiveTab('help')"
+                                style="outline: none; cursor: pointer; border-bottom: 2px solid transparent; font-size: 0.8rem;">
+                            <i class="fa fa-question-circle mr-1"/> Help
+                        </button>
+                    </div>
+
+                    <!-- Sidebar Content -->
+                    <div class="o_studio_sidebar_content p-3 flex-grow-1 overflow-auto" style="height: calc(100% - 45px); width: 100%;">
+                        <!-- ADD TAB -->
+                        <t t-if="studio.activeTab == 'add'">
+                            <div class="o_studio_components_section">
+                                <h6 class="font-weight-bold text-uppercase text-muted small mb-3">Add Custom Fields</h6>
+                                <div class="row row-cols-2 g-2 no-gutters">
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'char', 'Text Field')" style="cursor: grab;">
+                                            <i class="fa fa-font d-block mb-1 text-primary"/> Text
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'text', 'Long Text')" style="cursor: grab;">
+                                            <i class="fa fa-align-left d-block mb-1 text-primary"/> Long Text
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'integer', 'Integer')" style="cursor: grab;">
+                                            <i class="fa fa-calculator d-block mb-1 text-primary"/> Integer
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'float', 'Decimal')" style="cursor: grab;">
+                                            <i class="fa fa-calculator d-block mb-1 text-primary"/> Decimal
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'boolean', 'Checkbox')" style="cursor: grab;">
+                                            <i class="fa fa-check-square-o d-block mb-1 text-primary"/> Checkbox
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'selection', 'Dropdown')" style="cursor: grab;">
+                                            <i class="fa fa-list d-block mb-1 text-primary"/> Dropdown
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'many2one', 'Many2one')" style="cursor: grab;">
+                                            <i class="fa fa-link d-block mb-1 text-primary"/> Relation (M2O)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="o_studio_existing_fields_section mt-4">
+                                <h6 class="font-weight-bold text-uppercase text-muted small mb-3">Model Fields (Not in View)</h6>
+                                <t t-if="existingFieldsNotInView.length == 0">
+                                    <p class="text-muted small italic">All model fields are already present in the view layout.</p>
+                                </t>
+                                <t t-else="">
+                                    <div class="list-group">
+                                        <t t-foreach="existingFieldsNotInView" t-as="f" t-key="f.name">
+                                            <div class="list-group-item list-group-item-action p-2 border rounded mb-1 text-truncate"
+                                                 draggable="true" t-on-dragstart="(ev) => this.onDragStartExistingField(ev, f.name)"
+                                                 style="cursor: grab; font-size: 0.9rem; background: #fafafa;">
+                                                <i class="fa fa-cube mr-2 text-info"/>
+                                                <strong t-esc="f.string"/> <span class="text-muted small">(<t t-esc="f.name"/>)</span>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- PROPERTIES TAB -->
+                        <t t-if="studio.activeTab == 'properties'">
+                            <t t-if="!studio.selectedElement">
+                                <div class="text-center p-4 text-muted">
+                                    <i class="fa fa-mouse-pointer d-block fa-2x mb-2 text-black-50"/>
+                                    <p>Select any field, column, group, or page tab in the preview canvas to edit its properties.</p>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="o_studio_property_sheet">
+                                    <div class="mb-3 border-bottom pb-2">
+                                        <h6 class="font-weight-bold text-primary mb-1">Selected Element</h6>
+                                        <span class="badge badge-secondary" t-esc="studio.selectedElement.type.toUpperCase()"/>
+                                        <div class="text-muted small mt-1 text-truncate" t-att-title="studio.selectedElement.xpath">
+                                            XPath: <code t-esc="studio.selectedElement.xpath"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Label Rename (Only for fields, groups, notebook tabs) -->
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold small text-muted">Label / Header</label>
+                                        <input type="text" class="form-control form-control-sm"
+                                               t-att-value="studio.selectedElement.string || ''"
+                                               t-on-change="(ev) => this.onRenameElement(ev.target.value)"/>
+                                    </div>
+
+                                    <!-- Attributes Toggles (Only for fields/columns) -->
+                                    <t t-if="studio.selectedElement.type == 'field' || studio.selectedElement.type == 'column'">
+                                        <hr/>
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" class="form-check-input" id="prop_invisible"
+                                                   t-att-checked="studio.selectedElement.invisible"
+                                                   t-on-change="(ev) => this.onPropertyChange('invisible', ev.target.checked ? '1' : '0')"/>
+                                            <label class="form-check-label small" for="prop_invisible">Invisible</label>
+                                        </div>
+
+                                        <div class="form-check mb-2">
+                                            <input type="checkbox" class="form-check-input" id="prop_readonly"
+                                                   t-att-checked="studio.selectedElement.readonly"
+                                                   t-on-change="(ev) => this.onPropertyChange('readonly', ev.target.checked ? '1' : '0')"/>
+                                            <label class="form-check-label small" for="prop_readonly">Read-Only</label>
+                                        </div>
+
+                                        <div class="form-check mb-3">
+                                            <input type="checkbox" class="form-check-input" id="prop_required"
+                                                   t-att-checked="studio.selectedElement.required"
+                                                   t-on-change="(ev) => this.onPropertyChange('required', ev.target.checked ? '1' : '0')"/>
+                                            <label class="form-check-label small" for="prop_required">Required</label>
+                                        </div>
+                                    </t>
+
+                                    <!-- Actions -->
+                                    <hr/>
+                                    <button class="btn btn-sm btn-block btn-danger mt-3" t-on-click="deleteSelectedElement">
+                                        <i class="fa fa-trash"/> Remove Component
+                                    </button>
+                                </div>
+                            </t>
+                        </t>
+
+                        <!-- HELP TAB -->
+                        <t t-if="studio.activeTab == 'help'">
+                            <div class="o_studio_help_tab">
+                                <h6 class="font-weight-bold mb-3 text-primary"><i class="fa fa-book"/> Studio CE User Guide</h6>
+                                
+                                <div class="o_studio_help_section mb-3">
+                                    <h6 class="font-weight-bold text-dark border-bottom pb-1 mb-2 small text-uppercase">1. Drag and Drop</h6>
+                                    <p class="text-muted small">
+                                        Go to the <strong>Add</strong> tab. Choose a field type (e.g. Text, Integer, Checkbox) or an existing model field, and drag it over the preview canvas. 
+                                    </p>
+                                    <p class="text-muted small">
+                                        Hover over fields (Form views) or columns (List views) to locate highlight drop zones. Drop to insert.
+                                    </p>
+                                </div>
+
+                                <div class="o_studio_help_section mb-3">
+                                    <h6 class="font-weight-bold text-dark border-bottom pb-1 mb-2 small text-uppercase">2. Properties</h6>
+                                    <p class="text-muted small">
+                                        Click on any element in the live preview to select it. The editor will automatically open this <strong>Properties</strong> tab.
+                                    </p>
+                                    <p class="text-muted small">
+                                        Configure attributes like <strong>Invisible</strong>, <strong>Read-Only</strong>, <strong>Required</strong>, rename labels, or delete elements.
+                                    </p>
+                                </div>
+
+                                <div class="o_studio_help_section mb-3">
+                                    <h6 class="font-weight-bold text-dark border-bottom pb-1 mb-2 small text-uppercase">3. Custom Fields</h6>
+                                    <p class="text-muted small">
+                                        Dropping a new field type prompts you for a name and label. 
+                                    </p>
+                                    <p class="text-muted small">
+                                        Odoo will dynamically create the column in the database (prefixed with <code>x_</code>) and reload the registry online.
+                                    </p>
+                                </div>
+
+                                <div class="o_studio_help_section mb-3">
+                                    <h6 class="font-weight-bold text-dark border-bottom pb-1 mb-2 small text-uppercase">4. Persistence</h6>
+                                    <p class="text-muted small">
+                                        All view modifications are persisted directly into the database as inherited Odoo views, meaning upgrades and standard extensions remain intact.
+                                    </p>
+                                    <p class="text-muted small">
+                                        Use <strong>Undo</strong> and <strong>Redo</strong> in the top bar to step backward or forward through operations.
+                                    </p>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Live Preview Canvas -->
+                <div class="o_studio_canvas flex-grow-1 p-4 bg-dark overflow-auto position-relative" style="height: 100%;">
+                    <!-- Canvas Grid overlay indicator -->
+                    <div class="o_studio_canvas_grid w-100 h-100 position-absolute top-0 left-0" style="opacity: 0.04; background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 20px 20px; pointer-events: none;"/>
+                    
+                    <div class="o_studio_view_wrapper bg-white shadow rounded p-4 h-100 position-relative overflow-auto" style="border: 2px dashed #9b59b6;">
+                        <span class="position-absolute px-2 py-1 bg-purple text-white small font-weight-bold" style="top: 0; left: 0; background: #9b59b6; border-bottom-right-radius: 4px; z-index: 10;">
+                            Live View Layout Editor
+                        </span>
+                        
+                        <!-- Embed standard View pointing to custom Studio components -->
+                        <View
+                            type="studio.activeViewType"
+                            resModel="studio.activeModel"
+                            arch="studio.arch"
+                            fields="studio.fields"
+                            jsClass="studio.activeViewType == 'form' ? 'studio_form' : 'studio_list'"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Field Creation Dialog Modal -->
+            <t t-if="studio.pendingFieldCreation">
+                <div class="modal fade show d-block" style="background: rgba(0, 0, 0, 0.5); z-index: 1050;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title font-weight-bold">Configure Custom Field</h5>
+                                <button type="button" class="close text-white" t-on-click="closeFieldCreationModal">
+                                    <span>&amp;times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group mb-3">
+                                    <label class="font-weight-bold small">Technical Name</label>
+                                    <div class="input-group input-group-sm">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">x_</span>
+                                        </div>
+                                        <input type="text" class="form-control" t-model="state.newFieldName"/>
+                                    </div>
+                                    <small class="form-text text-muted">A database column starting with x_ will be created.</small>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="font-weight-bold small">Label Description</label>
+                                    <input type="text" class="form-control form-control-sm" t-model="state.newFieldLabel"/>
+                                </div>
+                                <t t-if="studio.pendingFieldCreation.type == 'many2one'">
+                                    <div class="form-group mb-3">
+                                        <label class="font-weight-bold small">Relation Model</label>
+                                        <input type="text" class="form-control form-control-sm" placeholder="e.g. res.partner" t-model="state.newFieldRelation"/>
+                                    </div>
+                                </t>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-sm btn-secondary" t-on-click="closeFieldCreationModal">Cancel</button>
+                                <button type="button" class="btn btn-sm btn-primary" t-on-click="confirmFieldCreation">Add to Layout</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

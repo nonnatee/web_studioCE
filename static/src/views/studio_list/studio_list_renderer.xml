@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <!-- Primary inheritance of web.ListRenderer template -->
+    <t t-name="web_studioCE.StudioListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="primary">
+        <xpath expr="//thead//tr//t[@t-foreach='columns']//th[@t-if='column.type === &quot;field&quot;']" position="attributes">
+            <!-- Intercept click events to select column properties -->
+            <attribute name="t-on-click.stop">(ev) => this.onColumnSelect(ev, column)</attribute>
+            <!-- Setup drag and drop events -->
+            <attribute name="t-on-dragover.prevent">(ev) => this.onDragOver(ev)</attribute>
+            <attribute name="t-on-dragleave">(ev) => this.onDragLeave(ev)</attribute>
+            <attribute name="t-on-drop.stop">(ev) => this.onDrop(ev, column)</attribute>
+            
+            <!-- Dynamic highlighting style -->
+            <attribute name="t-att-class">getColumnClass(column) + ' opacity-trigger-hover w-print-auto o_web_studio_column_target ' + (studio.selectedElement?.name === column.name ? 'o_selected' : '')</attribute>
+            <!-- Add visual identification attributes -->
+            <attribute name="data-studio-name">column.name</attribute>
+        </xpath>
+    </t>
+</templates>
