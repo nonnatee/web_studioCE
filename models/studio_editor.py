@@ -17,66 +17,62 @@ class StudioEditor(models.AbstractModel):
             _logger.warning("Studio CE: Invalid or missing model_name '%s'", model_name)
             return {'view_id': False, 'arch': False, 'fields': {}, 'models': {}, 'relatedModels': {}}
 
-        fields_info = {}
-        models_dict = {}
-        arch = False
-        res_view_id = view_id
+        # Sanitize view_id parameter
+        clean_view_id = view_id if (view_id and isinstance(view_id, int)) else None
 
         try:
-            fields_info = self.env[model_name].fields_get()
-        except Exception as e:
-            _logger.warning("Studio CE: fields_get failed for %s: %s", model_name, e)
-
-        try:
-            view_info = self.env[model_name].get_view(view_id=view_id or False, view_type=view_type)
-            res_view_id = view_info.get('id') or view_id
+            # Standard Odoo get_view method is JSON-serializable and handles inheritance + relational models
+            view_info = self.env[model_name].get_view(view_id=clean_view_id, view_type=view_type)
+            res_view_id = view_info.get('id') or view_id or False
             arch = view_info.get('arch')
+            fields_info = view_info.get('fields', {}) or {}
             models_dict = view_info.get('models', {}) or {}
-            if view_info.get('fields'):
-                fields_info.update(view_info.get('fields'))
+
+            # Ensure main model_name is present in models_dict with fields
+            if model_name not in models_dict or not isinstance(models_dict[model_name], dict):
+                models_dict[model_name] = {}
+            models_dict[model_name]['fields'] = fields_info
+
+            return {
+                'view_id': res_view_id,
+                'arch': arch,
+                'fields': fields_info,
+                'models': models_dict,
+                'relatedModels': models_dict,
+            }
         except Exception as e:
-            _logger.warning("Studio CE: get_view failed for %s (%s), falling back: %s", model_name, view_type, e)
-            try:
-                view = self.env['ir.ui.view'].browse(view_id) if view_id else self.env['ir.ui.view']
-                if not view.exists():
-                    view_types = [view_type]
-                    if view_type == 'list':
-                        view_types.append('tree')
-                    elif view_type == 'tree':
-                        view_types.append('list')
-                    view = self.env['ir.ui.view'].search([
-                        ('model', '=', model_name),
-                        ('type', 'in', view_types)
-                    ], limit=1)
-                if view:
-                    res_view_id = view.id
-                    arch = view.arch
-            except Exception as fallback_e:
-                _logger.warning("Studio CE: Fallback view search failed: %s", fallback_e)
+            _logger.warning("Studio CE: get_view failed for %s (%s), trying fallback: %s", model_name, view_type, e)
 
-        # Ensure model_name entry exists in models_dict and contains 'fields'
-        if model_name not in models_dict or not isinstance(models_dict[model_name], dict):
-            models_dict[model_name] = {}
-        models_dict[model_name]['fields'] = fields_info
+        # Fallback if get_view fails
+        try:
+            view = self.env['ir.ui.view'].browse(clean_view_id) if clean_view_id else self.env['ir.ui.view']
+            if not view.exists():
+                view_types = [view_type]
+                if view_type == 'list':
+                    view_types.append('tree')
+                elif view_type == 'tree':
+                    view_types.append('list')
+                view = self.env['ir.ui.view'].search([
+                    ('model', '=', model_name),
+                    ('type', 'in', view_types)
+                ], limit=1)
 
-        # Ensure every model in models_dict has a 'fields' dictionary
-        for m_name, m_info in list(models_dict.items()):
-            if isinstance(m_info, dict) and 'fields' not in m_info:
-                try:
-                    if m_name in self.env:
-                        m_info['fields'] = self.env[m_name].fields_get()
-                    else:
-                        m_info['fields'] = {}
-                except Exception:
-                    m_info['fields'] = {}
+            res_view_id = view.id if view else False
+            arch = view.arch if view else False
+            
+            fields_info = self.env[model_name].fields_get()
+            models_dict = { model_name: { 'fields': fields_info } }
 
-        return {
-            'view_id': res_view_id,
-            'arch': arch,
-            'fields': fields_info,
-            'models': models_dict,
-            'relatedModels': models_dict,
-        }
+            return {
+                'view_id': res_view_id,
+                'arch': arch,
+                'fields': fields_info,
+                'models': models_dict,
+                'relatedModels': models_dict,
+            }
+        except Exception as fallback_e:
+            _logger.error("Studio CE: Fallback failed for %s: %s", model_name, fallback_e)
+            return {'view_id': False, 'arch': False, 'fields': {}, 'models': {}, 'relatedModels': {}}
 
     def _get_or_create_custom_view(self, base_view):
         """
