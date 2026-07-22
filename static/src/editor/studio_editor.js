@@ -9,12 +9,6 @@ export class StudioEditor extends Component {
     setup() {
         this.studio = useState(useService("studio"));
         this.orm = useService("orm");
-        this.state = useState({
-            newFieldName: "",
-            newFieldLabel: "",
-            newFieldRelation: "",
-        });
-        this.env.openFieldCreationModal = this.openFieldCreationModal.bind(this);
 
         const handleDragEnd = () => {
             document.body.classList.remove("o_studio_dragging");
@@ -90,26 +84,18 @@ export class StudioEditor extends Component {
         });
     }
 
-    // Modal Field Creation
-    openFieldCreationModal(type, label, xpath, position) {
-        this.studio.setPendingFieldCreation({ type, label, xpath, position });
-        this.state.newFieldName = "x_field_" + Math.random().toString(36).substring(2, 7);
-        this.state.newFieldLabel = label;
-        this.state.newFieldRelation = "";
-    }
-
     closeFieldCreationModal() {
-        this.studio.setPendingFieldCreation(null);
+        this.studio.closeFieldCreationModal();
     }
 
     async confirmFieldCreation() {
         const pending = this.studio.pendingFieldCreation;
         if (!pending || !pending.xpath || !pending.position) return;
         
-        const name = this.state.newFieldName;
-        const label = this.state.newFieldLabel;
+        const name = pending.fieldName;
+        const label = pending.fieldLabel;
         const type = pending.type;
-        const relation = this.state.newFieldRelation;
+        const relation = pending.fieldRelation;
 
         await this.studio.pushAction(async () => {
             await this.orm.call("studio.editor", "add_field_to_view", [], {

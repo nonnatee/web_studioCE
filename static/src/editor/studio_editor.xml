@@ -268,18 +268,18 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">x_</span>
                                         </div>
-                                        <input type="text" class="form-control" t-model="state.newFieldName"/>
+                                        <input type="text" class="form-control" t-model="studio.pendingFieldCreation.fieldName"/>
                                     </div>
                                     <small class="form-text text-muted">A database column starting with x_ will be created.</small>
                                 </div>
                                 <div class="form-group mb-3">
                                     <label class="font-weight-bold small">Label Description</label>
-                                    <input type="text" class="form-control form-control-sm" t-model="state.newFieldLabel"/>
+                                    <input type="text" class="form-control form-control-sm" t-model="studio.pendingFieldCreation.fieldLabel"/>
                                 </div>
                                 <t t-if="studio.pendingFieldCreation.type == 'many2one'">
                                     <div class="form-group mb-3">
                                         <label class="font-weight-bold small">Relation Model</label>
-                                        <input type="text" class="form-control form-control-sm" placeholder="e.g. res.partner" t-model="state.newFieldRelation"/>
+                                        <input type="text" class="form-control form-control-sm" placeholder="e.g. res.partner" t-model="studio.pendingFieldCreation.fieldRelation"/>
                                     </div>
                                 </t>
                             </div>

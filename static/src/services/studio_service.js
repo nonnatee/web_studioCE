@@ -144,6 +144,22 @@ export const studioService = {
 
             setActiveTab(tab) { state.activeTab = tab; },
             setPendingFieldCreation(val) { state.pendingFieldCreation = val; },
+
+            openFieldCreationModal(type, label, xpath, position) {
+                state.pendingFieldCreation = {
+                    type,
+                    label,
+                    xpath,
+                    position,
+                    fieldName: "x_field_" + Math.random().toString(36).substring(2, 7),
+                    fieldLabel: label,
+                    fieldRelation: "",
+                };
+            },
+
+            closeFieldCreationModal() {
+                state.pendingFieldCreation = null;
+            },
         });
 
         return state;

@@ -48,7 +48,7 @@ export class StudioListRenderer extends ListRenderer {
 
         if (newFieldData) {
             const { type, label } = JSON.parse(newFieldData);
-            this.env.openFieldCreationModal(type, label, targetXpath, "after");
+            this.studio.openFieldCreationModal(type, label, targetXpath, "after");
         } else if (existingFieldName) {
             await this.studio.pushAction(async () => {
                 await this.orm.call("studio.editor", "add_field_to_view", [], {

@@ -51,7 +51,7 @@ export class StudioFormRenderer extends FormRenderer {
 
         if (newFieldData) {
             const { type, label } = JSON.parse(newFieldData);
-            this.env.openFieldCreationModal(type, label, targetXpath, position);
+            this.studio.openFieldCreationModal(type, label, targetXpath, position);
         } else if (existingFieldName) {
             await this.studio.pushAction(async () => {
                 await this.orm.call("studio.editor", "add_field_to_view", [], {
