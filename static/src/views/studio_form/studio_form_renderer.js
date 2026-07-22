@@ -2,6 +2,11 @@ import { FormRenderer } from "@web/views/form/form_renderer";
 import { useService } from "@web/core/utils/hooks";
 
 export class StudioFormRenderer extends FormRenderer {
+    static props = {
+        ...FormRenderer.props,
+        "*": true,
+    };
+
     setup() {
         super.setup();
         this.studio = useService("studio");

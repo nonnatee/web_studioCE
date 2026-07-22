@@ -3,6 +3,10 @@ import { useService } from "@web/core/utils/hooks";
 
 export class StudioListRenderer extends ListRenderer {
     static template = "web_studioCE.StudioListRenderer";
+    static props = {
+        ...ListRenderer.props,
+        "*": true,
+    };
 
     setup() {
         super.setup();

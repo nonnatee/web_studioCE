@@ -4,6 +4,7 @@ import { useService } from "@web/core/utils/hooks";
 
 export class StudioSystray extends Component {
     static template = "web_studioCE.StudioSystray";
+    static props = { "*": true };
     setup() {
         this.studio = useState(useService("studio"));
     }

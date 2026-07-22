@@ -5,6 +5,7 @@ import { View } from "@web/views/view";
 export class StudioEditor extends Component {
     static template = "web_studioCE.StudioEditor";
     static components = { View };
+    static props = { "*": true };
 
     setup() {
         this.studio = useState(useService("studio"));
