@@ -47,6 +47,11 @@ export const studioService = {
                         view_type: viewType,
                     });
                     
+                    if (!result || !result.arch) {
+                        console.warn("Studio CE: Could not retrieve valid view architecture for", resModel);
+                        return;
+                    }
+                    
                     state.activeAction = currentAction;
                     state.activeModel = resModel;
                     state.activeViewId = result.view_id;

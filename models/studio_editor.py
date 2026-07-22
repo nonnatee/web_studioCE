@@ -13,13 +13,20 @@ class StudioEditor(models.AbstractModel):
         """
         Retrieves the architecture XML, field definitions, and relational models for editing.
         """
-        # Get standard fields description for model_name
-        fields_info = self.env[model_name].fields_get()
-        
+        if not model_name or model_name not in self.env:
+            _logger.warning("Studio CE: Invalid or missing model_name '%s'", model_name)
+            return {'view_id': False, 'arch': False, 'fields': {}, 'models': {}, 'relatedModels': {}}
+
+        fields_info = {}
         models_dict = {}
         arch = False
         res_view_id = view_id
-        
+
+        try:
+            fields_info = self.env[model_name].fields_get()
+        except Exception as e:
+            _logger.warning("Studio CE: fields_get failed for %s: %s", model_name, e)
+
         try:
             view_info = self.env[model_name].get_view(view_id=view_id or False, view_type=view_type)
             res_view_id = view_info.get('id') or view_id
@@ -29,21 +36,23 @@ class StudioEditor(models.AbstractModel):
                 fields_info.update(view_info.get('fields'))
         except Exception as e:
             _logger.warning("Studio CE: get_view failed for %s (%s), falling back: %s", model_name, view_type, e)
-            view = self.env['ir.ui.view'].browse(view_id) if view_id else self.env['ir.ui.view']
-            if not view.exists():
-                view_types = [view_type]
-                if view_type == 'list':
-                    view_types.append('tree')
-                elif view_type == 'tree':
-                    view_types.append('list')
-                view = self.env['ir.ui.view'].search([
-                    ('model', '=', model_name),
-                    ('type', 'in', view_types)
-                ], limit=1)
-            
-            if view:
-                res_view_id = view.id
-                arch = view.arch
+            try:
+                view = self.env['ir.ui.view'].browse(view_id) if view_id else self.env['ir.ui.view']
+                if not view.exists():
+                    view_types = [view_type]
+                    if view_type == 'list':
+                        view_types.append('tree')
+                    elif view_type == 'tree':
+                        view_types.append('list')
+                    view = self.env['ir.ui.view'].search([
+                        ('model', '=', model_name),
+                        ('type', 'in', view_types)
+                    ], limit=1)
+                if view:
+                    res_view_id = view.id
+                    arch = view.arch
+            except Exception as fallback_e:
+                _logger.warning("Studio CE: Fallback view search failed: %s", fallback_e)
 
         # Ensure model_name entry exists in models_dict and contains 'fields'
         if model_name not in models_dict or not isinstance(models_dict[model_name], dict):
@@ -54,7 +63,10 @@ class StudioEditor(models.AbstractModel):
         for m_name, m_info in list(models_dict.items()):
             if isinstance(m_info, dict) and 'fields' not in m_info:
                 try:
-                    m_info['fields'] = self.env[m_name].fields_get()
+                    if m_name in self.env:
+                        m_info['fields'] = self.env[m_name].fields_get()
+                    else:
+                        m_info['fields'] = {}
                 except Exception:
                     m_info['fields'] = {}
 
