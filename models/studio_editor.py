@@ -11,31 +11,40 @@ class StudioEditor(models.AbstractModel):
     @api.model
     def get_view_arch_and_fields(self, model_name, view_id, view_type):
         """
-        Retrieves the architecture XML and field definitions for editing.
+        Retrieves the architecture XML, field definitions, and relational models for editing.
         """
-        view = self.env['ir.ui.view'].browse(view_id) if view_id else self.env['ir.ui.view']
-        if not view.exists():
-            # If view_id is false, search for the default view of this type
-            view_types = [view_type]
-            if view_type == 'list':
-                view_types.append('tree')
-            elif view_type == 'tree':
-                view_types.append('list')
-            view = self.env['ir.ui.view'].search([
-                ('model', '=', model_name),
-                ('type', 'in', view_types)
-            ], limit=1)
-        
-        if not view:
-            return {'view_id': False, 'arch': False, 'fields': {}}
+        try:
+            view_info = self.env[model_name].get_view(view_id=view_id or False, view_type=view_type)
+            return {
+                'view_id': view_info.get('id') or view_id,
+                'arch': view_info.get('arch'),
+                'fields': view_info.get('fields', {}),
+                'models': view_info.get('models', {}),
+            }
+        except Exception as e:
+            _logger.warning("Studio CE: get_view failed for %s (%s), falling back: %s", model_name, view_type, e)
+            view = self.env['ir.ui.view'].browse(view_id) if view_id else self.env['ir.ui.view']
+            if not view.exists():
+                view_types = [view_type]
+                if view_type == 'list':
+                    view_types.append('tree')
+                elif view_type == 'tree':
+                    view_types.append('list')
+                view = self.env['ir.ui.view'].search([
+                    ('model', '=', model_name),
+                    ('type', 'in', view_types)
+                ], limit=1)
             
-        # Get standard fields description
-        fields_info = self.env[model_name].fields_get()
-        return {
-            'view_id': view.id,
-            'arch': view.arch,
-            'fields': fields_info
-        }
+            if not view:
+                return {'view_id': False, 'arch': False, 'fields': {}, 'models': {}}
+                
+            fields_info = self.env[model_name].fields_get()
+            return {
+                'view_id': view.id,
+                'arch': view.arch,
+                'fields': fields_info,
+                'models': {}
+            }
 
     def _get_or_create_custom_view(self, base_view):
         """

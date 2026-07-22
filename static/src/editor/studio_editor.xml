@@ -242,8 +242,10 @@
                         <View
                             type="studio.activeViewType"
                             resModel="studio.activeModel"
+                            viewId="studio.activeViewId"
                             arch="studio.arch"
                             fields="studio.fields"
+                            models="studio.models"
                             jsClass="studio.activeViewType == 'form' ? 'studio_form' : 'studio_list'"
                         />
                     </div>

@@ -12,6 +12,7 @@ export const studioService = {
             activeModel: null,
             arch: null,
             fields: {},
+            models: {},
             undoStack: [],
             redoStack: [],
             selectedElement: null,
@@ -50,7 +51,8 @@ export const studioService = {
                     state.activeViewId = result.view_id;
                     state.activeViewType = viewType;
                     state.arch = result.arch;
-                    state.fields = result.fields;
+                    state.fields = result.fields || {};
+                    state.models = result.models || {};
                     state.undoStack = [];
                     state.redoStack = [];
                     state.selectedElement = null;
@@ -69,6 +71,7 @@ export const studioService = {
                 state.activeViewType = null;
                 state.arch = null;
                 state.fields = {};
+                state.models = {};
                 state.selectedElement = null;
                 
                 if (activeAction) {
@@ -94,6 +97,8 @@ export const studioService = {
                         view_type: state.activeViewType,
                     });
                     state.arch = result.arch;
+                    state.fields = result.fields || {};
+                    state.models = result.models || {};
                     state.selectedElement = null;
                 } catch (err) {
                     console.error("Studio CE: Action execution failed:", err);
@@ -111,7 +116,14 @@ export const studioService = {
                     await orm.write("ir.ui.view", [state.activeViewId], {
                         arch: previousState.arch
                     });
-                    state.arch = previousState.arch;
+                    const result = await orm.call("studio.editor", "get_view_arch_and_fields", [], {
+                        model_name: state.activeModel,
+                        view_id: state.activeViewId,
+                        view_type: state.activeViewType,
+                    });
+                    state.arch = result.arch;
+                    state.fields = result.fields || {};
+                    state.models = result.models || {};
                     state.selectedElement = null;
                 } catch (err) {
                     console.error("Studio CE: Failed to undo:", err);
@@ -128,7 +140,14 @@ export const studioService = {
                     await orm.write("ir.ui.view", [state.activeViewId], {
                         arch: nextState.arch
                     });
-                    state.arch = nextState.arch;
+                    const result = await orm.call("studio.editor", "get_view_arch_and_fields", [], {
+                        model_name: state.activeModel,
+                        view_id: state.activeViewId,
+                        view_type: state.activeViewType,
+                    });
+                    state.arch = result.arch;
+                    state.fields = result.fields || {};
+                    state.models = result.models || {};
                     state.selectedElement = null;
                 } catch (err) {
                     console.error("Studio CE: Failed to redo:", err);
