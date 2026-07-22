@@ -246,6 +246,7 @@
                             arch="studio.arch"
                             fields="studio.fields"
                             models="studio.models"
+                            relatedModels="studio.relatedModels"
                             jsClass="studio.activeViewType == 'form' ? 'studio_form' : 'studio_list'"
                         />
                     </div>

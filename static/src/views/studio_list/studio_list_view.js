@@ -8,7 +8,12 @@ export const studioListView = {
     Controller: StudioListController,
     Renderer: StudioListRenderer,
     props(genericProps, view) {
-        const res = listView.props(genericProps, view);
+        const propsWithModels = {
+            ...genericProps,
+            models: genericProps.models || genericProps.relatedModels || {},
+            relatedModels: genericProps.relatedModels || genericProps.models || {},
+        };
+        const res = listView.props(propsWithModels, view);
         res.readonly = true;
         return res;
     }

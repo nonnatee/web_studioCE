@@ -13,6 +13,7 @@ export const studioService = {
             arch: null,
             fields: {},
             models: {},
+            relatedModels: {},
             undoStack: [],
             redoStack: [],
             selectedElement: null,
@@ -52,7 +53,9 @@ export const studioService = {
                     state.activeViewType = viewType;
                     state.arch = result.arch;
                     state.fields = result.fields || {};
-                    state.models = result.models || {};
+                    const resolvedModels = result.models || result.relatedModels || {};
+                    state.models = resolvedModels;
+                    state.relatedModels = resolvedModels;
                     state.undoStack = [];
                     state.redoStack = [];
                     state.selectedElement = null;
@@ -72,6 +75,7 @@ export const studioService = {
                 state.arch = null;
                 state.fields = {};
                 state.models = {};
+                state.relatedModels = {};
                 state.selectedElement = null;
                 
                 if (activeAction) {
@@ -98,7 +102,9 @@ export const studioService = {
                     });
                     state.arch = result.arch;
                     state.fields = result.fields || {};
-                    state.models = result.models || {};
+                    const resolvedModels = result.models || result.relatedModels || {};
+                    state.models = resolvedModels;
+                    state.relatedModels = resolvedModels;
                     state.selectedElement = null;
                 } catch (err) {
                     console.error("Studio CE: Action execution failed:", err);
@@ -123,7 +129,9 @@ export const studioService = {
                     });
                     state.arch = result.arch;
                     state.fields = result.fields || {};
-                    state.models = result.models || {};
+                    const resolvedModels = result.models || result.relatedModels || {};
+                    state.models = resolvedModels;
+                    state.relatedModels = resolvedModels;
                     state.selectedElement = null;
                 } catch (err) {
                     console.error("Studio CE: Failed to undo:", err);
@@ -147,7 +155,9 @@ export const studioService = {
                     });
                     state.arch = result.arch;
                     state.fields = result.fields || {};
-                    state.models = result.models || {};
+                    const resolvedModels = result.models || result.relatedModels || {};
+                    state.models = resolvedModels;
+                    state.relatedModels = resolvedModels;
                     state.selectedElement = null;
                 } catch (err) {
                     console.error("Studio CE: Failed to redo:", err);

@@ -15,11 +15,13 @@ class StudioEditor(models.AbstractModel):
         """
         try:
             view_info = self.env[model_name].get_view(view_id=view_id or False, view_type=view_type)
+            models_dict = view_info.get('models', {}) or {}
             return {
                 'view_id': view_info.get('id') or view_id,
                 'arch': view_info.get('arch'),
                 'fields': view_info.get('fields', {}),
-                'models': view_info.get('models', {}),
+                'models': models_dict,
+                'relatedModels': models_dict,
             }
         except Exception as e:
             _logger.warning("Studio CE: get_view failed for %s (%s), falling back: %s", model_name, view_type, e)
@@ -36,14 +38,15 @@ class StudioEditor(models.AbstractModel):
                 ], limit=1)
             
             if not view:
-                return {'view_id': False, 'arch': False, 'fields': {}, 'models': {}}
+                return {'view_id': False, 'arch': False, 'fields': {}, 'models': {}, 'relatedModels': {}}
                 
             fields_info = self.env[model_name].fields_get()
             return {
                 'view_id': view.id,
                 'arch': view.arch,
                 'fields': fields_info,
-                'models': {}
+                'models': {},
+                'relatedModels': {}
             }
 
     def _get_or_create_custom_view(self, base_view):

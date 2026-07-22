@@ -10,7 +10,12 @@ export const studioFormView = {
     Renderer: StudioFormRenderer,
     Compiler: StudioFormCompiler,
     props(genericProps, view) {
-        const res = formView.props(genericProps, view);
+        const propsWithModels = {
+            ...genericProps,
+            models: genericProps.models || genericProps.relatedModels || {},
+            relatedModels: genericProps.relatedModels || genericProps.models || {},
+        };
+        const res = formView.props(propsWithModels, view);
         // Force preview view to be readonly
         res.readonly = true;
         return res;
