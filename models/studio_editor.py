@@ -13,16 +13,20 @@ class StudioEditor(models.AbstractModel):
         """
         Retrieves the architecture XML, field definitions, and relational models for editing.
         """
+        # Get standard fields description for model_name
+        fields_info = self.env[model_name].fields_get()
+        
+        models_dict = {}
+        arch = False
+        res_view_id = view_id
+        
         try:
             view_info = self.env[model_name].get_view(view_id=view_id or False, view_type=view_type)
+            res_view_id = view_info.get('id') or view_id
+            arch = view_info.get('arch')
             models_dict = view_info.get('models', {}) or {}
-            return {
-                'view_id': view_info.get('id') or view_id,
-                'arch': view_info.get('arch'),
-                'fields': view_info.get('fields', {}),
-                'models': models_dict,
-                'relatedModels': models_dict,
-            }
+            if view_info.get('fields'):
+                fields_info.update(view_info.get('fields'))
         except Exception as e:
             _logger.warning("Studio CE: get_view failed for %s (%s), falling back: %s", model_name, view_type, e)
             view = self.env['ir.ui.view'].browse(view_id) if view_id else self.env['ir.ui.view']
@@ -37,17 +41,30 @@ class StudioEditor(models.AbstractModel):
                     ('type', 'in', view_types)
                 ], limit=1)
             
-            if not view:
-                return {'view_id': False, 'arch': False, 'fields': {}, 'models': {}, 'relatedModels': {}}
-                
-            fields_info = self.env[model_name].fields_get()
-            return {
-                'view_id': view.id,
-                'arch': view.arch,
-                'fields': fields_info,
-                'models': {},
-                'relatedModels': {}
-            }
+            if view:
+                res_view_id = view.id
+                arch = view.arch
+
+        # Ensure model_name entry exists in models_dict and contains 'fields'
+        if model_name not in models_dict or not isinstance(models_dict[model_name], dict):
+            models_dict[model_name] = {}
+        models_dict[model_name]['fields'] = fields_info
+
+        # Ensure every model in models_dict has a 'fields' dictionary
+        for m_name, m_info in list(models_dict.items()):
+            if isinstance(m_info, dict) and 'fields' not in m_info:
+                try:
+                    m_info['fields'] = self.env[m_name].fields_get()
+                except Exception:
+                    m_info['fields'] = {}
+
+        return {
+            'view_id': res_view_id,
+            'arch': arch,
+            'fields': fields_info,
+            'models': models_dict,
+            'relatedModels': models_dict,
+        }
 
     def _get_or_create_custom_view(self, base_view):
         """

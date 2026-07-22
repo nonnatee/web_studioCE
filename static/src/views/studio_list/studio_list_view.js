@@ -8,10 +8,22 @@ export const studioListView = {
     Controller: StudioListController,
     Renderer: StudioListRenderer,
     props(genericProps, view) {
+        const models = genericProps.models || genericProps.relatedModels || {};
+        const fields = genericProps.fields || {};
+        
+        if (genericProps.resModel) {
+            if (!models[genericProps.resModel]) {
+                models[genericProps.resModel] = { fields };
+            } else if (models[genericProps.resModel] && !models[genericProps.resModel].fields) {
+                models[genericProps.resModel].fields = fields;
+            }
+        }
+
         const propsWithModels = {
             ...genericProps,
-            models: genericProps.models || genericProps.relatedModels || {},
-            relatedModels: genericProps.relatedModels || genericProps.models || {},
+            fields,
+            models,
+            relatedModels: models,
         };
         const res = listView.props(propsWithModels, view);
         res.readonly = true;
