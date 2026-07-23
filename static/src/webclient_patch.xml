@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-inherit="web.WebClient" t-inherit-mode="extension">
-        <!-- Render StudioEditor right after the standard action container when active -->
-        <xpath expr="//ActionContainer" position="after">
-            <t t-if="studio.studioMode">
+        <!-- Cleanly replace ActionContainer with a t-if/t-else branch for Studio mode -->
+        <xpath expr="//ActionContainer" position="replace">
+            <t t-if="!studio.studioMode">
+                <ActionContainer/>
+            </t>
+            <t t-else="">
                 <StudioEditor/>
             </t>
         </xpath>
-        <!-- Hide standard ActionContainer visually when Studio mode is active (keeping DOM node intact for Owl patcher) -->
-        <xpath expr="//ActionContainer" position="attributes">
-            <attribute name="class">studio.studioMode ? 'd-none' : ''</attribute>
-        </xpath>
-        <!-- Hide standard NavBar visually when Studio mode is active -->
+        <!-- Hide standard NavBar when Studio mode is active -->
         <xpath expr="//NavBar" position="attributes">
-            <attribute name="class">studio.studioMode ? 'd-none' : ''</attribute>
+            <attribute name="t-if">!state.fullscreen &amp;&amp; !studio.studioMode</attribute>
         </xpath>
     </t>
 </templates>
+
 
 
