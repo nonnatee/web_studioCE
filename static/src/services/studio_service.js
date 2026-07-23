@@ -2,12 +2,14 @@ import { registry } from "@web/core/registry";
 import { reactive } from "@odoo/owl";
 
 export const studioService = {
-    dependencies: ["action", "orm"],
-    start(env, { action, orm }) {
+    dependencies: ["action", "orm", "notification"],
+    start(env, { action, orm, notification }) {
         const state = reactive({
             studioMode: false,
             activeAction: null,
             activeViewId: null,
+            customViewId: null,
+            customArch: null,
             activeViewType: null,
             activeModel: null,
             arch: null,
@@ -23,7 +25,7 @@ export const studioService = {
             async enterStudioMode() {
                 const controller = action.currentController;
                 if (!controller) {
-                    console.warn("Studio CE: No active view controller found.");
+                    notification.add("Studio CE: No active view controller found to edit.", { type: "warning" });
                     return;
                 }
                 
@@ -36,7 +38,7 @@ export const studioService = {
                 const viewId = controller.props?.viewId || controller.viewId || false;
 
                 if (!resModel || !['form', 'list'].includes(viewType)) {
-                    console.warn("Studio CE: Editing is only supported for Form and List views. Found viewType:", viewType, "resModel:", resModel);
+                    notification.add(`Studio CE: Editing is only supported for Form and List views (Found: ${viewType}).`, { type: "warning" });
                     return;
                 }
 
@@ -48,13 +50,15 @@ export const studioService = {
                     });
                     
                     if (!result || !result.arch) {
-                        console.warn("Studio CE: Could not retrieve valid view architecture for", resModel);
+                        notification.add(`Studio CE: Could not retrieve view architecture for ${resModel}.`, { type: "danger" });
                         return;
                     }
                     
                     state.activeAction = currentAction;
                     state.activeModel = resModel;
                     state.activeViewId = result.view_id;
+                    state.customViewId = result.custom_view_id || false;
+                    state.customArch = result.custom_arch || "<data></data>";
                     state.activeViewType = viewType;
                     state.arch = result.arch;
                     state.fields = result.fields || {};
@@ -67,6 +71,7 @@ export const studioService = {
                     state.studioMode = true;
                 } catch (err) {
                     console.error("Studio CE: Failed to enter Studio Mode:", err);
+                    notification.add("Studio CE: Failed to load Studio Mode.", { type: "danger" });
                 }
             },
 
@@ -76,6 +81,8 @@ export const studioService = {
                 state.activeAction = null;
                 state.activeModel = null;
                 state.activeViewId = null;
+                state.customViewId = null;
+                state.customArch = null;
                 state.activeViewType = null;
                 state.arch = null;
                 state.fields = {};
@@ -94,7 +101,7 @@ export const studioService = {
 
             async pushAction(rpcCall) {
                 state.undoStack.push({
-                    arch: state.arch,
+                    customArch: state.customArch,
                 });
                 state.redoStack = [];
                 
@@ -106,6 +113,8 @@ export const studioService = {
                         view_type: state.activeViewType,
                     });
                     state.arch = result.arch;
+                    state.customViewId = result.custom_view_id || false;
+                    state.customArch = result.custom_arch || "<data></data>";
                     state.fields = result.fields || {};
                     const resolvedModels = result.models || result.relatedModels || {};
                     state.models = resolvedModels;
@@ -114,18 +123,20 @@ export const studioService = {
                 } catch (err) {
                     console.error("Studio CE: Action execution failed:", err);
                     state.undoStack.pop();
+                    notification.add("Studio CE: Could not apply changes.", { type: "danger" });
                 }
             },
 
             async undo() {
-                if (state.undoStack.length === 0) return;
+                if (state.undoStack.length === 0 || !state.activeViewId) return;
                 const previousState = state.undoStack.pop();
                 state.redoStack.push({
-                    arch: state.arch,
+                    customArch: state.customArch,
                 });
                 try {
-                    await orm.write("ir.ui.view", [state.activeViewId], {
-                        arch: previousState.arch
+                    await orm.call("studio.editor", "set_custom_view_arch", [], {
+                        view_id: state.activeViewId,
+                        arch: previousState.customArch,
                     });
                     const result = await orm.call("studio.editor", "get_view_arch_and_fields", [], {
                         model_name: state.activeModel,
@@ -133,6 +144,8 @@ export const studioService = {
                         view_type: state.activeViewType,
                     });
                     state.arch = result.arch;
+                    state.customViewId = result.custom_view_id || false;
+                    state.customArch = result.custom_arch || "<data></data>";
                     state.fields = result.fields || {};
                     const resolvedModels = result.models || result.relatedModels || {};
                     state.models = resolvedModels;
@@ -140,18 +153,20 @@ export const studioService = {
                     state.selectedElement = null;
                 } catch (err) {
                     console.error("Studio CE: Failed to undo:", err);
+                    notification.add("Studio CE: Undo failed.", { type: "danger" });
                 }
             },
 
             async redo() {
-                if (state.redoStack.length === 0) return;
+                if (state.redoStack.length === 0 || !state.activeViewId) return;
                 const nextState = state.redoStack.pop();
                 state.undoStack.push({
-                    arch: state.arch,
+                    customArch: state.customArch,
                 });
                 try {
-                    await orm.write("ir.ui.view", [state.activeViewId], {
-                        arch: nextState.arch
+                    await orm.call("studio.editor", "set_custom_view_arch", [], {
+                        view_id: state.activeViewId,
+                        arch: nextState.customArch,
                     });
                     const result = await orm.call("studio.editor", "get_view_arch_and_fields", [], {
                         model_name: state.activeModel,
@@ -159,6 +174,8 @@ export const studioService = {
                         view_type: state.activeViewType,
                     });
                     state.arch = result.arch;
+                    state.customViewId = result.custom_view_id || false;
+                    state.customArch = result.custom_arch || "<data></data>";
                     state.fields = result.fields || {};
                     const resolvedModels = result.models || result.relatedModels || {};
                     state.models = resolvedModels;
@@ -166,6 +183,7 @@ export const studioService = {
                     state.selectedElement = null;
                 } catch (err) {
                     console.error("Studio CE: Failed to redo:", err);
+                    notification.add("Studio CE: Redo failed.", { type: "danger" });
                 }
             },
 
@@ -201,3 +219,4 @@ export const studioService = {
 };
 
 registry.category("services").add("studio", studioService);
+
