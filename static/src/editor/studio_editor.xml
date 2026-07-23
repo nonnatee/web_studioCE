@@ -240,10 +240,10 @@
                         
                         <!-- Embed standard View pointing to custom Studio components -->
                         <View
-                            type="studio.activeViewType == 'form' ? 'studio_form' : 'studio_list'"
+                            type="studio.activeViewType"
                             resModel="studio.activeModel"
                             viewId="studio.activeViewId"
-                            arch="studio.arch"
+                            arch="studioArch"
                             fields="studio.fields"
                             models="studio.models"
                             relatedModels="studio.relatedModels"

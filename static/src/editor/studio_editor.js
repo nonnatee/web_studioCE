@@ -22,6 +22,21 @@ export class StudioEditor extends Component {
         });
     }
 
+    get studioArch() {
+        let arch = this.studio.arch || "";
+        if (!arch) return arch;
+        const jsClass = this.studio.activeViewType === "form" ? "studio_form" : "studio_list";
+        
+        if (arch.includes('js_class=')) {
+            arch = arch.replace(/js_class="[^"]*"/, `js_class="${jsClass}"`);
+            arch = arch.replace(/js_class='[^']*'/, `js_class="${jsClass}"`);
+        } else {
+            arch = arch.replace(/<([a-zA-Z0-9_]+)/, `<$1 js_class="${jsClass}"`);
+        }
+        return arch;
+    }
+
+
     get existingFieldsNotInView() {
         const arch = this.studio.arch || "";
         return Object.entries(this.studio.fields)
