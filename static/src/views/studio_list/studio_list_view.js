@@ -21,6 +21,7 @@ export const studioListView = {
 
         const propsWithModels = {
             ...genericProps,
+            type: "list",
             fields,
             models,
             relatedModels: models,
@@ -32,3 +33,4 @@ export const studioListView = {
 };
 
 registry.category("views").add("studio_list", studioListView);
+

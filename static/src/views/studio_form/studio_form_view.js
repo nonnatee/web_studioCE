@@ -23,6 +23,7 @@ export const studioFormView = {
 
         const propsWithModels = {
             ...genericProps,
+            type: "form",
             fields,
             models,
             relatedModels: models,
@@ -35,3 +36,4 @@ export const studioFormView = {
 };
 
 registry.category("views").add("studio_form", studioFormView);
+

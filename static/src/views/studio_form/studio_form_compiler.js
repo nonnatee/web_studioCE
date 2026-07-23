@@ -9,17 +9,18 @@ export class StudioFormCompiler extends FormCompiler {
 
         // Wrap the compiled field in a designer overlay
         const wrapper = createElement("div", {
-            class: `"o_web_studio_field_target position-relative d-block w-100"`,
-            "t-on-click.stop": `(ev) => __comp__.onElementSelect(ev, 'field', '${xpath}', '${fieldName}')`,
-            "data-studio-xpath": `'${xpath}'`,
-            "data-studio-name": `'${fieldName}'`,
+            class: "o_web_studio_field_target position-relative d-block w-100",
+            "t-on-click.stop": "(ev) => __comp__.onElementSelect(ev, 'field')",
+            "data-studio-xpath": xpath,
+            "data-studio-name": fieldName || "",
+            "data-studio-position": "after",
             // Drag and drop setup
-            "t-on-dragover.prevent": `(ev) => __comp__.onDragOver(ev)`,
-            "t-on-dragleave": `(ev) => __comp__.onDragLeave(ev)`,
-            "t-on-drop.stop": `(ev) => __comp__.onDrop(ev, '${xpath}', 'after')`,
+            "t-on-dragover.prevent": "(ev) => __comp__.onDragOver(ev)",
+            "t-on-dragleave": "(ev) => __comp__.onDragLeave(ev)",
+            "t-on-drop.stop": "(ev) => __comp__.onDrop(ev)",
         });
         
-        wrapper.setAttribute("t-att-class", `__comp__.studio.selectedElement?.xpath === '${xpath}' ? 'o_selected' : ''`);
+        wrapper.setAttribute("t-att-class", `__comp__.studio.selectedElement?.name === '${fieldName}' ? 'o_selected' : ''`);
         append(wrapper, node);
         return wrapper;
     }
@@ -30,15 +31,20 @@ export class StudioFormCompiler extends FormCompiler {
         const xpath = groupName ? `//group[@name='${groupName}']` : `//group[1]`;
 
         const wrapper = createElement("div", {
-            class: `"o_web_studio_group_target w-100"`,
-            "t-on-click.stop": `(ev) => __comp__.onElementSelect(ev, 'group', '${xpath}', '${groupName || 'Group'}')`,
-            "t-on-dragover.prevent": `(ev) => __comp__.onDragOver(ev)`,
-            "t-on-dragleave": `(ev) => __comp__.onDragLeave(ev)`,
-            "t-on-drop.stop": `(ev) => __comp__.onDrop(ev, '${xpath}', 'inside')`,
+            class: "o_web_studio_group_target w-100",
+            "t-on-click.stop": "(ev) => __comp__.onElementSelect(ev, 'group')",
+            "data-studio-xpath": xpath,
+            "data-studio-name": groupName || "Group",
+            "data-studio-position": "inside",
+            "t-on-dragover.prevent": "(ev) => __comp__.onDragOver(ev)",
+            "t-on-dragleave": "(ev) => __comp__.onDragLeave(ev)",
+            "t-on-drop.stop": "(ev) => __comp__.onDrop(ev)",
         });
 
-        wrapper.setAttribute("t-att-class", `__comp__.studio.selectedElement?.xpath === '${xpath}' ? 'o_selected' : ''`);
+        const safeXpath = xpath.replace(/'/g, "\\'");
+        wrapper.setAttribute("t-att-class", `__comp__.studio.selectedElement?.xpath === '${safeXpath}' ? 'o_selected' : ''`);
         append(wrapper, node);
         return wrapper;
     }
 }
+

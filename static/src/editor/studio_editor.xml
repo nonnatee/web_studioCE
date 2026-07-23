@@ -240,14 +240,13 @@
                         
                         <!-- Embed standard View pointing to custom Studio components -->
                         <View
-                            type="studio.activeViewType"
+                            type="studio.activeViewType == 'form' ? 'studio_form' : 'studio_list'"
                             resModel="studio.activeModel"
                             viewId="studio.activeViewId"
                             arch="studio.arch"
                             fields="studio.fields"
                             models="studio.models"
                             relatedModels="studio.relatedModels"
-                            jsClass="studio.activeViewType == 'form' ? 'studio_form' : 'studio_list'"
                         />
                     </div>
                 </div>
