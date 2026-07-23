@@ -9,12 +9,13 @@
         </xpath>
         <!-- Hide standard ActionContainer visually when Studio mode is active (keeping DOM node intact for Owl patcher) -->
         <xpath expr="//ActionContainer" position="attributes">
-            <attribute name="t-att-class">{ 'd-none': studio.studioMode }</attribute>
+            <attribute name="class">studio.studioMode ? 'd-none' : ''</attribute>
         </xpath>
         <!-- Hide standard NavBar visually when Studio mode is active -->
         <xpath expr="//NavBar" position="attributes">
-            <attribute name="t-att-class">{ 'd-none': studio.studioMode }</attribute>
+            <attribute name="class">studio.studioMode ? 'd-none' : ''</attribute>
         </xpath>
     </t>
 </templates>
+
 
