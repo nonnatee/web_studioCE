@@ -332,4 +332,57 @@ class StudioEditor(models.AbstractModel):
         self.env['ir.ui.view'].clear_caches()
         return True
 
+    @api.model
+    def add_chatter_to_view(self, view_id):
+        """
+        Injects standard Odoo chatter layout into the form view if not present.
+        """
+        clean_view_id = self._sanitize_view_id(view_id)
+        base_view = self.env['ir.ui.view'].browse(clean_view_id) if clean_view_id else self.env['ir.ui.view']
+        if not base_view.exists():
+            return False
+            
+        custom_view = self._get_or_create_custom_view(base_view)
+        if not custom_view:
+            return False
+        
+        parser = ET.XMLParser(remove_blank_text=True)
+        arch_str = (custom_view.arch or '<data></data>').strip()
+        arch_xml = ET.fromstring(arch_str.encode('utf-8'), parser)
+        
+        # Inject chatter node inside sheet or form
+        xpath_node = ET.SubElement(arch_xml, 'xpath', expr="//form", position="inside")
+        ET.SubElement(xpath_node, 'chatter')
+        
+        custom_view.arch = ET.tostring(arch_xml, encoding='utf-8', pretty_print=True).decode('utf-8')
+        self.env['ir.ui.view'].clear_caches()
+        return True
+
+    @api.model
+    def add_button_to_view(self, view_id, button_name, button_label, button_type='object'):
+        """
+        Appends an action button inside the header element of a form view.
+        """
+        clean_view_id = self._sanitize_view_id(view_id)
+        base_view = self.env['ir.ui.view'].browse(clean_view_id) if clean_view_id else self.env['ir.ui.view']
+        if not base_view.exists():
+            return False
+            
+        custom_view = self._get_or_create_custom_view(base_view)
+        if not custom_view:
+            return False
+        
+        parser = ET.XMLParser(remove_blank_text=True)
+        arch_str = (custom_view.arch or '<data></data>').strip()
+        arch_xml = ET.fromstring(arch_str.encode('utf-8'), parser)
+        
+        # Target header element
+        xpath_node = ET.SubElement(arch_xml, 'xpath', expr="//header", position="inside")
+        ET.SubElement(xpath_node, 'button', name=button_name, string=button_label, type=button_type, attrib={'class': 'btn-primary'})
+        
+        custom_view.arch = ET.tostring(arch_xml, encoding='utf-8', pretty_print=True).decode('utf-8')
+        self.env['ir.ui.view'].clear_caches()
+        return True
+
+
 

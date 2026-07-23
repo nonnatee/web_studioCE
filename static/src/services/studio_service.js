@@ -37,8 +37,8 @@ export const studioService = {
                 }
                 const viewId = controller.props?.viewId || controller.viewId || false;
 
-                if (!resModel || !['form', 'list'].includes(viewType)) {
-                    notification.add(`Studio CE: Editing is only supported for Form and List views (Found: ${viewType}).`, { type: "warning" });
+                if (!resModel || !['form', 'list', 'kanban'].includes(viewType)) {
+                    notification.add(`Studio CE: Editing is only supported for Form, List, and Kanban views (Found: ${viewType}).`, { type: "warning" });
                     return;
                 }
 

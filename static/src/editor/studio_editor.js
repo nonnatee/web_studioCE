@@ -25,7 +25,12 @@ export class StudioEditor extends Component {
     get studioArch() {
         let arch = this.studio.arch || "";
         if (!arch) return arch;
-        const jsClass = this.studio.activeViewType === "form" ? "studio_form" : "studio_list";
+        let jsClass = "studio_form";
+        if (this.studio.activeViewType === "list") {
+            jsClass = "studio_list";
+        } else if (this.studio.activeViewType === "kanban") {
+            jsClass = "studio_kanban";
+        }
         
         if (arch.includes('js_class=')) {
             arch = arch.replace(/js_class="[^"]*"/, `js_class="${jsClass}"`);
@@ -35,7 +40,6 @@ export class StudioEditor extends Component {
         }
         return arch;
     }
-
 
     get existingFieldsNotInView() {
         const arch = this.studio.arch || "";
@@ -57,6 +61,60 @@ export class StudioEditor extends Component {
     onDragStartExistingField(ev, name) {
         document.body.classList.add("o_studio_dragging");
         ev.dataTransfer.setData("studio/existing-field", name);
+    }
+
+    async addChatterSection() {
+        await this.studio.pushAction(async () => {
+            await this.orm.call("studio.editor", "add_chatter_to_view", [], {
+                view_id: this.studio.activeViewId,
+            });
+        });
+    }
+
+    async addActionButton() {
+        const name = prompt("Enter Technical Method Name for Button (e.g. action_confirm):", "action_custom");
+        if (!name) return;
+        const label = prompt("Enter Button Label:", "Custom Action");
+        if (!label) return;
+
+        await this.studio.pushAction(async () => {
+            await this.orm.call("studio.editor", "add_button_to_view", [], {
+                view_id: this.studio.activeViewId,
+                button_name: name,
+                button_label: label,
+            });
+        });
+    }
+
+    async addGroupSection() {
+        const label = prompt("Enter Group Name:", "x_group_" + Math.random().toString(36).substring(2, 6));
+        if (!label) return;
+
+        await this.studio.pushAction(async () => {
+            await this.orm.call("studio.editor", "add_group_to_view", [], {
+                view_id: this.studio.activeViewId,
+                target_xpath: "//sheet",
+                position: "inside",
+                group_name: label,
+            });
+        });
+    }
+
+    async addNotebookPageTab() {
+        const name = prompt("Enter Page Technical Name:", "page_" + Math.random().toString(36).substring(2, 6));
+        if (!name) return;
+        const label = prompt("Enter Page Tab Title:", "Custom Page");
+        if (!label) return;
+
+        await this.studio.pushAction(async () => {
+            await this.orm.call("studio.editor", "add_notebook_page", [], {
+                view_id: this.studio.activeViewId,
+                target_xpath: "//notebook",
+                position: "inside",
+                page_name: name,
+                page_label: label,
+            });
+        });
     }
 
     // Property Sheet handlers
@@ -129,3 +187,4 @@ export class StudioEditor extends Component {
         this.closeFieldCreationModal();
     }
 }
+

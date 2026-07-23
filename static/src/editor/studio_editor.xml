@@ -51,6 +51,37 @@
                     <div class="o_studio_sidebar_content p-3 flex-grow-1 overflow-auto" style="height: calc(100% - 45px); width: 100%;">
                         <!-- ADD TAB -->
                         <t t-if="studio.activeTab == 'add'">
+                            <!-- STRUCTURAL ELEMENTS -->
+                            <div class="o_studio_structure_section mb-4">
+                                <h6 class="font-weight-bold text-uppercase text-muted small mb-2">Structure &amp; Components</h6>
+                                <div class="row row-cols-2 g-2 no-gutters">
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-white shadow-sm"
+                                             t-on-click="addGroupSection" style="cursor: pointer;">
+                                            <i class="fa fa-columns d-block mb-1 text-purple" style="color: #9b59b6;"/> 2-Col Group
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-white shadow-sm"
+                                             t-on-click="addNotebookPageTab" style="cursor: pointer;">
+                                            <i class="fa fa-folder-o d-block mb-1 text-purple" style="color: #9b59b6;"/> Notebook Tab
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-white shadow-sm"
+                                             t-on-click="addActionButton" style="cursor: pointer;">
+                                            <i class="fa fa-hand-pointer-o d-block mb-1 text-purple" style="color: #9b59b6;"/> Header Button
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-white shadow-sm"
+                                             t-on-click="addChatterSection" style="cursor: pointer;">
+                                            <i class="fa fa-comments d-block mb-1 text-purple" style="color: #9b59b6;"/> Add Chatter
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="o_studio_components_section">
                                 <h6 class="font-weight-bold text-uppercase text-muted small mb-3">Add Custom Fields</h6>
                                 <div class="row row-cols-2 g-2 no-gutters">
@@ -94,6 +125,24 @@
                                         <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
                                              t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'many2one', 'Many2one')" style="cursor: grab;">
                                             <i class="fa fa-link d-block mb-1 text-primary"/> Relation (M2O)
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'date', 'Date')" style="cursor: grab;">
+                                            <i class="fa fa-calendar d-block mb-1 text-primary"/> Date
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'datetime', 'Datetime')" style="cursor: grab;">
+                                            <i class="fa fa-calendar-check-o d-block mb-1 text-primary"/> Datetime
+                                        </div>
+                                    </div>
+                                    <div class="col p-1">
+                                        <div class="o_studio_field_card p-2 border rounded text-center bg-light" draggable="true"
+                                             t-on-dragstart="(ev) => this.onDragStartNewField(ev, 'html', 'HTML Text')" style="cursor: grab;">
+                                            <i class="fa fa-code d-block mb-1 text-primary"/> HTML Editor
                                         </div>
                                     </div>
                                 </div>
