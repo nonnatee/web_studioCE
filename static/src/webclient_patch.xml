@@ -7,13 +7,14 @@
                 <StudioEditor/>
             </t>
         </xpath>
-        <!-- Hide standard ActionContainer when Studio mode is active -->
+        <!-- Hide standard ActionContainer visually when Studio mode is active (keeping DOM node intact for Owl patcher) -->
         <xpath expr="//ActionContainer" position="attributes">
-            <attribute name="t-if">!studio.studioMode</attribute>
+            <attribute name="t-att-class">{ 'd-none': studio.studioMode }</attribute>
         </xpath>
-        <!-- Hide standard NavBar when Studio mode is active -->
+        <!-- Hide standard NavBar visually when Studio mode is active -->
         <xpath expr="//NavBar" position="attributes">
-            <attribute name="t-if">!state.fullscreen &amp;&amp; !studio.studioMode</attribute>
+            <attribute name="t-att-class">{ 'd-none': studio.studioMode }</attribute>
         </xpath>
     </t>
 </templates>
+
